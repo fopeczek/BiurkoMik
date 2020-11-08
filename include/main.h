@@ -8,8 +8,7 @@
 #ifndef MAIN_H_
 #define MAIN_H_
 
-#include "BiurkoFinal.h"
-#include "LiquidCrystal_I2C.h"
+#include "Desktop.h"
 
 extern Biurko biurko;
 

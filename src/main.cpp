@@ -1,14 +1,17 @@
-#include "main.h"
+//#include "main.h"
+//#include "lcd.h"
+//
+//Biurko biurko;
+#include "Arduino.h"
 
-Biurko biurko;
 
 void setup(){
 	Serial.begin(9600);
 	Serial.print("cus");
-	biurko.setups();
+//	biurko.setups();
 }
 
 void loop(){
-	startup();
-	biurko.updates();
+//	startup();
+//	biurko.updates();
 }

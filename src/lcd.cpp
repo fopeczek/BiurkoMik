@@ -1,8 +1,12 @@
 #include "lcd.h"
 #include "Arduino.h"
+#include "menu.h"
+#include "main.h"
 
 FlatRawMenu menu;
 static DebugLCD mylcd;
+
+LiquidCrystal_I2C lcd(0x3F, 20, 4);
 
 String draw_act_state1(){
 	String out= "istt: ";

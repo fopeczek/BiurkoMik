@@ -1,15 +1,14 @@
 #ifndef LCD_H_
 #define LCD_H_
 
-#include "BiurkoFinal.h"
 #include "function_objects.h"
-#include "menu.h"
-#include "main.h"
+#include "LiquidCrystal_I2C.h"
 
 #define ROW_COUNT 4
 #define COL_COUNT 20
 
-LiquidCrystal_I2C lcd(0x3F, 20, 4);
+extern LiquidCrystal_I2C lcd;
+
 class DebugLCD {
 	using draw_row_fn = FunctionObject<String(void)>;
 public:

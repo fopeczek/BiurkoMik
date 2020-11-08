@@ -4,21 +4,12 @@
 // - extern variable definitions
 // In the appropriate section
 
-#ifndef _BiurkoFinal_H_
-#define _BiurkoFinal_H_
-
+#ifndef _Desktop_H_
+#define _Desktop_H_
 #include "Arduino.h"
 #include "smartimpulsator.h"
 #include "timer.h"
-//add your includes for the project BiurkoFinal here
-
-
-//end of add your includes here
-
-
-
-
-//add your function definitions for the project BiurkoFinal here
+//add your includes for the project Desktop here
 
 class Biurko{
 public:
@@ -90,6 +81,5 @@ private:
 	SmartImpulsator m_pulse;
 	Guzik ON_OFF;
 };
-
 //Do not add code below this line
-#endif /* _BiurkoFinal_H_ */
+#endif /* _Desktop_H_ */
