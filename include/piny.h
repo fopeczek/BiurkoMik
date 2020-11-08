@@ -18,6 +18,7 @@ constexpr uint8_t PIN_MOTION_SENSOR=A1;
 
 constexpr uint8_t PIN_IMPULSATOR_BUTTON=12;
 constexpr uint8_t PIN_CHANGE_COLOR_BUTTON=A0;
+constexpr uint8_t PIN_MENU_BUTTON=A2;
 //constexpr uint8_t PIN_AUTO_BUTTON=4;
 
 

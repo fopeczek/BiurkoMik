@@ -6,6 +6,30 @@
 #include "smartimpulsator.h"
 #include "impulsator.h"
 
+
+void Biurko::auto_light_make(){
+	Serial.println(m_pulse.GetValue());
+	////		blink_encoder(1, PIN_LED_IMPULSATOR);
+		digitalWrite(PIN_LED_MOTION_LONG, HIGH);
+		if (m_light_state.mode != LightState::Mode::high_no_limit and m_light_state.mode != LightState::Mode::low_no_limit){
+			if (m_pulse.GetValue() == m_light_state.min_bound) {
+				m_light_state.mode = LightState::Mode::low;
+				Off();
+			} else if (m_pulse.GetValue() == m_light_state.max_bound) {
+				m_light_state.mode = LightState::Mode::high;
+				On(m_light_state.max_bound);
+			} else{
+				m_light_state.mode = LightState::Mode::middle;
+				On(m_pulse.GetValue());
+				auto_off.set_timer(auto_off_time, [this](){this->turn_off(2);}, false);
+			}
+		}else {
+			digitalWrite(PIN_LED_NO_LIMIT, LOW);
+			auto_off.set_timer(auto_off_time, [this](){this->turn_off(2);}, false);
+			m_light_state.mode = LightState::Mode::middle;
+		}
+}
+
 void Biurko::motion_callback(){
 	Serial.println("motion");
 	if (m_light_state.mode != LightState::Mode::high_no_limit and m_light_state.mode != LightState::Mode::low_no_limit){
@@ -30,28 +54,7 @@ void Biurko::motion_callback(){
 	}
 }
 
-void Biurko::auto_light_make(){
-	Serial.println(m_pulse.GetValue());
-//		blink_encoder(1, PIN_LED_IMPULSATOR);
-	digitalWrite(PIN_LED_MOTION_LONG, HIGH);
-	if (m_light_state.mode != LightState::Mode::high_no_limit and m_light_state.mode != LightState::Mode::low_no_limit){
-		if (m_pulse.GetValue() == m_light_state.min_bound) {
-			m_light_state.mode = LightState::Mode::low;
-			Off();
-		} else if (m_pulse.GetValue() == m_light_state.max_bound) {
-			m_light_state.mode = LightState::Mode::high;
-			On(m_light_state.max_bound);
-		} else{
-			m_light_state.mode = LightState::Mode::middle;
-			On(m_pulse.GetValue());
-			auto_off.set_timer(auto_off_time, [this](){this->turn_off(2);}, false);
-		}
-	}else {
-		digitalWrite(PIN_LED_NO_LIMIT, LOW);
-		auto_off.set_timer(auto_off_time, [this](){this->turn_off(2);}, false);
-		m_light_state.mode = LightState::Mode::middle;
-	}
-}
+
 
 void Biurko::waiting(){ //motion activation
 	if (m_light_state.mode != LightState::Mode::high_no_limit and m_light_state.mode != LightState::Mode::low_no_limit){
@@ -71,11 +74,11 @@ void Biurko::motion_short(){ //sort time ends
 	Serial.println("short time");
 }
 
-void Biurko::On(uint16_t power){
+void Biurko::On(uint16_t power=255){
 	if (power > 0) {
-		analogWrite(PIN_LED_WHITE, power);
+		m_analogWrit(PIN_LED_WHITE, power);
 		m_light_state.intensity=power;
-		m_pulse.setValue(m_light_state.intensity);
+//		m_pulse.setValue(m_light_state.intensity);
 		Serial.println(m_light_state.intensity);
 		waiter.stop_timer();
 	}else {
@@ -85,9 +88,9 @@ void Biurko::On(uint16_t power){
 }
 
 void Biurko::Off(){
-	analogWrite(PIN_LED_WHITE, m_light_state.min_bound);
+	m_analogWrit(PIN_LED_WHITE, m_light_state.min_bound);
 	m_light_state.intensity=m_light_state.min_bound;
-	m_pulse.setValue(m_light_state.intensity);
+//	m_pulse.setValue(m_light_state.intensity);
 	waiter.set_timer(short_time, [this](){this->waiting();}, false);
 	Serial.println("motion deactivate by off");
 	digitalWrite(PIN_LED_MOTION_LONG, LOW);
@@ -248,42 +251,48 @@ void Biurko::click_callback() { //click
 
 
 void Biurko::setups(){
-	Serial.begin(9600);
 	Serial.println("start");
 	Serial.println(m_light_state.intensity);
-	Serial.println(m_pulse.GetValue());
-	ON_OFF.setupUsingAnalogPin(PIN_CHANGE_COLOR_BUTTON);
-	ON_OFF.setupClickHandler([this](){this->click_callback();});
-	ON_OFF.setupHoldHandler([this](){this->hold_callback();});
-	sensor.setupUsingAnalogPin(PIN_MOTION_SENSOR);
-	sensor.setupClickHandler([this](){this->motion_callback();});
+//	Serial.println(m_pulse.GetValue());
 
 	m_pulse.setOnChange([this](){this->auto_light_make();});
 
-	pinMode(PIN_LED_WHITE, OUTPUT);
-	pinMode(PIN_LED_MOTION, OUTPUT);
-	pinMode(PIN_LED_IMPULSATOR, OUTPUT);
-	pinMode(PIN_LED_CLICK, OUTPUT);
-	pinMode(PIN_LED_NO_LIMIT, OUTPUT);
-	pinMode(PIN_LED_MOTION_LONG, OUTPUT);
-	pinMode(9, OUTPUT);
-	analogWrite(PIN_LED_WHITE, m_light_state.max_bound);
-
-
 	m_light_state.intensity = m_light_state.max_bound;
 	m_light_state.mode = LightState::Mode::high;
-	m_pulse.setValue(m_light_state.max_bound, m_light_state.max_bound);
 	turn_on(2);
 
 	//debug_tm.set_timer(1000, debug, false);
 }
 
 void Biurko::updates(){
-	ON_OFF.update();
+#ifdef DEBUG
+	Serial.print("Krok1");Serial.flush();
+#endif
 	m_pulse.update();
+#ifdef DEBUG
+	Serial.print("Krok2");Serial.flush();
+#endif
+//	m_pulse.update();
+#ifdef DEBUG
+	Serial.print("Krok3");Serial.flush();
+#endif
 	auto_off.update();
-	sensor.update();
+#ifdef DEBUG
+	Serial.print("Krok4");Serial.flush();
+#endif
+#ifdef DEBUG
+	Serial.print("Krok5");Serial.flush();
+#endif
 	motion_off.update();
+#ifdef DEBUG
+	Serial.print("Krok6");Serial.flush();
+#endif
 	waiter.update();
+#ifdef DEBUG
+	Serial.print("Krok7");Serial.flush();
+#endif
 	debug_tm.update();
+#ifdef DEBUG
+	Serial.print("Krok8");Serial.flush();
+#endif
 }

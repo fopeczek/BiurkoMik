@@ -28,9 +28,9 @@ private:
 
 };
 
-
-
-
+void menuDraw();
+void select();
+void down();
 void startup();
 void draw_act_state();
 

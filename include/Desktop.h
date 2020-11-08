@@ -6,6 +6,7 @@
 
 #ifndef _Desktop_H_
 #define _Desktop_H_
+//#define DEBUG
 #include "Arduino.h"
 #include "smartimpulsator.h"
 #include "timer.h"
@@ -13,8 +14,10 @@
 
 class Biurko{
 public:
-	Biurko(): m_pulse(m_light_state.max_bound, 3, 12, false), m_light_state({LightState::Mode::high, m_light_state.max_bound, 0, 255}) {}
-
+	using Light_Callback = FunctionObject<void(uint32_t pin, uint32_t power)>;
+	Biurko(Light_Callback analogWrited ): m_pulse(m_light_state.max_bound, 3, 12, false), m_light_state({LightState::Mode::high, m_light_state.max_bound, 0, 255}) {
+		m_analogWrit = analogWrited;
+	}
 
 	struct LightState {
 		enum class Mode {high, low, middle, high_no_limit, low_no_limit};
@@ -42,21 +45,22 @@ public:
 //	const LightState& get_state() {return m_light_state;}
 
 	void updates();
+	void auto_light_make();
 
+
+	void motion_callback();
+	void click_callback();
+
+	void hold_callback();
 	void setups();
 	uint8_t Get_light_intensity(){return m_light_state.intensity;}
 private:
-	void motion_callback();
+	Light_Callback m_analogWrit;
 	void debug(){
 		Serial.println("update");
 		debug_tm.set_timer(1000, [this](){this->debug();}, false);
 	}
-	void auto_light_make();
 
-
-	void click_callback();
-
-	void hold_callback();
 
 	void waiting();
 
@@ -75,11 +79,10 @@ private:
 	mikTimer motion_off;
 	mikTimer waiter;
 
-	mikTimer debug_tm;
-	Guzik sensor;
-	LightState m_light_state;
 	SmartImpulsator m_pulse;
-	Guzik ON_OFF;
+	mikTimer debug_tm;
+
+	LightState m_light_state;
 };
 //Do not add code below this line
 #endif /* _Desktop_H_ */
